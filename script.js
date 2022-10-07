@@ -87,10 +87,52 @@ const displayMovements = function (movement) {
                 <div class="movements__value">${mov}€</div>
             </div>
     `;
-
         containerMovements.insertAdjacentHTML('afterbegin', html);
-
     });
 }
-
 displayMovements(account1.movements);
+
+// calculate balance
+const calcPrintBalance = function (movement) {
+    const balance = movement.reduce((acc, mov) => acc + mov, 0);
+    labelBalance.textContent = `${balance}€`;
+}
+calcPrintBalance(account1.movements);
+
+// Calculate and display summary
+const calcDisplaySummary = function (movement) {
+    const incomes = movement
+        .filter(mov => mov > 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumIn.textContent = `${incomes}€`;
+
+    const out = movement
+        .filter(mov => mov < 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumOut.textContent = `${Math.abs(out)}€`;
+
+    const interest = movement
+        .filter(mov => mov > 0)
+        .map(deposit => (deposit * 1.2) / 100)
+        .filter((int, i, arr) => {
+            return int >= 1;
+        })
+        .reduce((acc, int) => acc + int, 0);
+    labelSumInterest.textContent = `${interest}€`;
+}
+calcDisplaySummary(account1.movements);
+
+// create username
+const createUsernames = function (accs) {
+
+    accs.forEach(function (acc) {
+        acc.username = acc.owner
+            .toLowerCase()
+            .split(' ')
+            .map(name => name[0])
+            .join('');
+    });
+}
+createUsernames(accounts);
+
+
