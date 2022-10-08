@@ -6,17 +6,12 @@
 
 // Data
 const account1 = {
-    owner: 'Mohammed Zaky',
-    movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
-    interestRate: 1.2, // %
+    owner: 'Mohammed Zaky', movements: [200, 450, -400, 3000, -650, -130, 70, 1300], interestRate: 1.2, // %
     pin: 1111,
 };
 
 const account2 = {
-    owner: 'Ahmed Eid',
-    movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
-    interestRate: 1.5,
-    pin: 2222,
+    owner: 'Ahmed Eid', movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30], interestRate: 1.5, pin: 2222,
 };
 
 const account3 = {
@@ -27,10 +22,7 @@ const account3 = {
 };
 
 const account4 = {
-    owner: 'Sarah Smith',
-    movements: [430, 1000, 700, 50, 90],
-    interestRate: 1,
-    pin: 4444,
+    owner: 'Sarah Smith', movements: [430, 1000, 700, 50, 90], interestRate: 1, pin: 4444,
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -64,11 +56,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
-const currencies = new Map([
-    ['USD', 'United States dollar'],
-    ['EUR', 'Euro'],
-    ['GBP', 'Pound sterling'],
-]);
+const currencies = new Map([['USD', 'United States dollar'], ['EUR', 'Euro'], ['GBP', 'Pound sterling'],]);
 
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
@@ -76,6 +64,16 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 // Event handlers
 let currentAccount
+
+function updateUi(acc) {
+    // Display Movements
+    displayMovements(acc.movements)
+    // Display Balance
+    calcPrintBalance(acc)
+    // Display Summary
+    calcDisplaySummary(acc)
+}
+
 btnLogin.addEventListener('click', function (e) {
     // prevent default submit event
     e.preventDefault();
@@ -89,18 +87,28 @@ btnLogin.addEventListener('click', function (e) {
 
     // Clear Input Field
     inputLoginUsername.value = inputLoginPin.value = '';
+    // update Ui
+    updateUi(currentAccount);
+})
 
-    // Display Movements
-    displayMovements(currentAccount.movements)
-    // Display Balance
-    calcPrintBalance(currentAccount.movements)
-    // Display Summary
-    calcDisplaySummary(currentAccount)
+btnTransfer.addEventListener('click', function (e) {
+    e.preventDefault();
+    const amount = +inputTransferAmount.value;
+    const receiveAccount = accounts.find(acc => acc.username === inputTransferTo.value);
+
+    inputTransferAmount.value = inputTransferTo.value = '';
+
+
+    if (amount > 0 && receiveAccount && currentAccount.balance >= amount && receiveAccount?.username !== currentAccount.username) {
+        currentAccount.movements.push(-amount);
+        receiveAccount.movements.push(amount);
+        updateUi(currentAccount)
+    }
 })
 
 
 // Display movements
-const displayMovements = function (movement) {
+const displayMovements = function (movements) {
     containerMovements.innerHTML = '';
     movements.forEach(function (mov, i) {
         const type = mov > 0 ? 'deposit' : 'withdrawal';
@@ -116,9 +124,9 @@ const displayMovements = function (movement) {
 }
 
 // calculate balance
-const calcPrintBalance = function (movement) {
-    const balance = movement.reduce((acc, mov) => acc + mov, 0);
-    labelBalance.textContent = `${balance}€`;
+const calcPrintBalance = function (acc) {
+    acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+    labelBalance.textContent = `${acc.balance}€`;
 }
 
 // Calculate and display summary
