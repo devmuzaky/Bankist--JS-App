@@ -74,6 +74,30 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
 
+// Event handlers
+let currentAccount
+btnLogin.addEventListener('click', function (e) {
+    // prevent default submit event
+    e.preventDefault();
+    currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+
+    // Display UI Message
+    if (currentAccount?.pin === +inputLoginPin.value) {
+        labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+    }
+    containerApp.style.opacity = '100';
+
+    // Clear Input Field
+    inputLoginUsername.value = inputLoginPin.value = '';
+
+    // Display Movements
+    displayMovements(currentAccount.movements)
+    // Display Balance
+    calcPrintBalance(currentAccount.movements)
+    // Display Summary
+    calcDisplaySummary(currentAccount)
+})
+
 
 // Display movements
 const displayMovements = function (movement) {
@@ -90,37 +114,34 @@ const displayMovements = function (movement) {
         containerMovements.insertAdjacentHTML('afterbegin', html);
     });
 }
-displayMovements(account1.movements);
 
 // calculate balance
 const calcPrintBalance = function (movement) {
     const balance = movement.reduce((acc, mov) => acc + mov, 0);
     labelBalance.textContent = `${balance}€`;
 }
-calcPrintBalance(account1.movements);
 
 // Calculate and display summary
-const calcDisplaySummary = function (movement) {
-    const incomes = movement
+const calcDisplaySummary = function (acc) {
+    const incomes = acc.movements
         .filter(mov => mov > 0)
         .reduce((acc, mov) => acc + mov, 0);
     labelSumIn.textContent = `${incomes}€`;
 
-    const out = movement
+    const out = acc.movements
         .filter(mov => mov < 0)
         .reduce((acc, mov) => acc + mov, 0);
     labelSumOut.textContent = `${Math.abs(out)}€`;
 
-    const interest = movement
+    const interest = acc.movements
         .filter(mov => mov > 0)
-        .map(deposit => (deposit * 1.2) / 100)
+        .map(deposit => (deposit * acc.interestRate) / 100)
         .filter((int, i, arr) => {
             return int >= 1;
         })
         .reduce((acc, int) => acc + int, 0);
     labelSumInterest.textContent = `${interest}€`;
 }
-calcDisplaySummary(account1.movements);
 
 // create username
 const createUsernames = function (accs) {

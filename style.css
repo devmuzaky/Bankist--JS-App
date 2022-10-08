@@ -1,5 +1,5 @@
 /*
- * Use this CSS to learn some intersting techniques,
+ * Use this CSS to learn some interesting techniques,
  * in case you're wondering how I built the UI.
  * Have fun! 😁
  */
@@ -21,6 +21,7 @@ body {
   background-color: #f3f3f3;
   height: 100vh;
   padding: 2rem;
+  /*overflow: hidden;  !*Question ya ahmed*!*/
 }
 
 nav {
@@ -44,7 +45,7 @@ nav {
 }
 
 .login__input {
-  border: none;
+  /*border: none;*/
   padding: 0.5rem 2rem;
   font-size: 1.6rem;
   font-family: inherit;
@@ -93,8 +94,8 @@ nav {
   grid-template-rows: auto repeat(3, 15rem) auto;
   gap: 2rem;
 
-  /* NOTE This creates the fade in/out anumation */
-  /*opacity: 0;*/
+  /* NOTE This creates the fade in/out animation */
+  opacity: 0;
   transition: all 1s;
 }
 
