@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
-// BANKIST APP
+// BANK-IST APP
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -48,7 +48,7 @@ const account1 = {
         '2020-07-12T10:51:36.790Z',
     ],
     currency: 'EUR',
-    locale: 'pt-PT', // de-DE
+    locale: 'pt-PT'
 };
 
 const account2 = {
@@ -67,7 +67,7 @@ const account2 = {
         '2020-07-12T10:51:36.790Z',
     ],
     currency: 'EUR',
-    locale: 'pt-PT', // de-DE
+    locale: 'pt-PT'
 };
 
 const account3 = {
@@ -86,7 +86,7 @@ const account3 = {
         '2020-07-12T10:51:36.790Z',
     ],
     currency: 'EUR',
-    locale: 'pt-PT', // de-DE
+    locale: 'pt-PT'
 };
 
 const account4 = {
@@ -105,14 +105,14 @@ const account4 = {
         '2020-07-12T10:51:36.790Z',
     ],
     currency: 'EUR',
-    locale: 'pt-PT', // de-DE
+    locale: 'pt-PT'
 };
 
 const accounts = [account1, account2, account3, account4];
 
 
 // Format date function
-const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
     const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
 
     const daysPassed = calcDaysPassed(new Date(), date);
@@ -121,10 +121,7 @@ const formatMovementDate = function (date) {
     if (daysPassed === 1) return 'Yesterday';
     if (daysPassed <= 7) return `${daysPassed} days ago`;
 
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    return new Intl.DateTimeFormat(currentAccount.locale).format(date);
 }
 
 // Display movements
@@ -137,7 +134,7 @@ const displayMovements = function (acc, sort = false) {
         const type = mov > 0 ? 'deposit' : 'withdrawal';
 
         const date = new Date(acc.movementsDates[i]);
-        const displayDate = formatMovementDate(date);
+        const displayDate = formatMovementDate(date, acc.locale);
 
         const html = `
             <div class="movements__row">
@@ -203,8 +200,6 @@ function updateUi(acc) {
     calcDisplaySummary(acc)
 }
 
-const now = new Date();
-
 
 btnLogin.addEventListener('click', function (e) {
     // prevent default submit event
@@ -216,14 +211,15 @@ btnLogin.addEventListener('click', function (e) {
         labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
     }
     containerApp.style.opacity = 100;
-
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth() + 1}`.padStart(2, 0);
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, 0);
-    const min = `${now.getMinutes()}`.padStart(2, 0);
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+    const options = {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+    }
+    labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale, options).format(now);
 
     // Clear Input Field
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -306,7 +302,7 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
 
-// Fake always logged in
-currentAccount = account1;
-updateUi(currentAccount);
-containerApp.style.opacity = 100;
+// // Fake always logged in
+// currentAccount = account1;
+// updateUi(currentAccount);
+// containerApp.style.opacity = 100;
