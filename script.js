@@ -38,11 +38,11 @@ const account1 = {
     interestRate: 1.2,
     pin: 1111,
     movementsDates: [
-        '2019-11-18T21:31:17.178Z',
-        '2019-12-23T07:42:02.383Z',
-        '2020-01-28T09:15:04.904Z',
-        '2020-04-01T10:17:24.185Z',
-        '2020-05-08T14:11:59.604Z',
+        '2022-10-09T21:31:17.178Z',
+        '2022-10-08T07:42:02.383Z',
+        '2022-10-07T09:15:04.904Z',
+        '2022-10-10T10:17:24.185Z',
+        '2022-10-11T14:11:59.604Z',
         '2020-05-27T17:01:17.194Z',
         '2020-07-11T23:36:17.929Z',
         '2020-07-12T10:51:36.790Z',
@@ -111,16 +111,38 @@ const account4 = {
 const accounts = [account1, account2, account3, account4];
 
 
+// Format date function
+const formatMovementDate = function (date) {
+    const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+    const daysPassed = calcDaysPassed(new Date(), date);
+
+    if (daysPassed === 0) return 'Today';
+    if (daysPassed === 1) return 'Yesterday';
+    if (daysPassed <= 7) return `${daysPassed} days ago`;
+
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 // Display movements
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (acc, sort = false) {
     containerMovements.innerHTML = '';
-    const movs = sort ? movements.slice().sort((a, b) => a - b) : movements
+
+    const movs = sort ? acc.movements.slice().sort((a, b) => a - b) : acc.movements
+
     movs.forEach(function (mov, i) {
         const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+        const date = new Date(acc.movementsDates[i]);
+        const displayDate = formatMovementDate(date);
+
         const html = `
             <div class="movements__row">
                 <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-                <div class="movements__date">3 days ago</div>
+                <div class="movements__date">${displayDate}</div>
                 <div class="movements__value">${mov.toFixed(2)}€</div>
             </div>
     `;
@@ -169,19 +191,20 @@ const createUsernames = function (accs) {
 }
 createUsernames(accounts);
 
-/////////////////////////////////////////////////
-
 // Event handlers
 let currentAccount
 
 function updateUi(acc) {
     // Display Movements
-    displayMovements(acc.movements)
+    displayMovements(acc)
     // Display Balance
     calcPrintBalance(acc)
     // Display Summary
     calcDisplaySummary(acc)
 }
+
+const now = new Date();
+
 
 btnLogin.addEventListener('click', function (e) {
     // prevent default submit event
@@ -193,6 +216,14 @@ btnLogin.addEventListener('click', function (e) {
         labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
     }
     containerApp.style.opacity = 100;
+
+    const now = new Date();
+    const day = `${now.getDate()}`.padStart(2, 0);
+    const month = `${now.getMonth() + 1}`.padStart(2, 0);
+    const year = now.getFullYear();
+    const hour = `${now.getHours()}`.padStart(2, 0);
+    const min = `${now.getMinutes()}`.padStart(2, 0);
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
 
     // Clear Input Field
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -216,6 +247,11 @@ btnTransfer.addEventListener('click', function (e) {
     ) {
         currentAccount.movements.push(-amount);
         receiveAccount.movements.push(amount);
+
+        // Add transfer date
+        currentAccount.movementsDates.push(new Date().toISOString());
+        receiveAccount.movementsDates.push(new Date().toISOString());
+
         updateUi(currentAccount)
     }
 })
@@ -249,7 +285,7 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', (e) => {
     e.preventDefault();
-    displayMovements(currentAccount.movements, !sorted);
+    displayMovements(currentAccount, !sorted);
     sorted = !sorted;
 })
 
@@ -269,3 +305,8 @@ const currencies = new Map([['USD', 'United States dollar'], ['EUR', 'Euro'], ['
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+
+// Fake always logged in
+currentAccount = account1;
+updateUi(currentAccount);
+containerApp.style.opacity = 100;
